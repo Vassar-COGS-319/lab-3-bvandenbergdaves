@@ -11,6 +11,12 @@
 
 random.walk.model <- function(samples, drift=0, sdrw=0.3, criterion=3){
   
+  
+  data <- replicate(samples, sim.1(drift, sdrw, criterion))
+  
+  accuracy.array <- data[1, 1:samples]
+  rt.array <- data[2, 1:samples]
+  
   output <- data.frame(
     correct = accuracy.array,
     rt = rt.array
@@ -18,6 +24,17 @@ random.walk.model <- function(samples, drift=0, sdrw=0.3, criterion=3){
   
   return(output)
 }
+
+sim.1 <- function(drift, sdrw, criterion){
+  evidence <- 0
+  time <- 0
+  while (evidence < criterion && evidence > -criterion){
+    evidence <- evidence + rnorm(1, drift, sdrw)
+    time <- time + 1
+  }
+  return(c(evidence >= criterion, time))
+}
+
 
 # test the model ####
 
@@ -33,6 +50,7 @@ mean(initial.test$rt) # should be about 112
 
 # we can use dplyr to filter the data and visualize the correct and incorrect RT distributions
 
+
 library(dplyr)
 
 correct.data <- initial.test %>% filter(correct==TRUE)
@@ -40,3 +58,5 @@ incorrect.data <- initial.test %>% filter(correct==FALSE)
 
 hist(correct.data$rt)
 hist(incorrect.data$rt)
+
+
