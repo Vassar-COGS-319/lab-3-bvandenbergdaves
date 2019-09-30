@@ -47,6 +47,7 @@ sim.2 <- function(rate.1, rate.2, criterion){
 }
 
 
+
 # test the model ####
 
 # if the model is working correctly, then the line below should generate a data frame with 
