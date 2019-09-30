@@ -35,17 +35,16 @@ sim.2 <- function(rate.1, rate.2, criterion){
   evidence.2 <- 0
   time <- 0
   while (evidence.1 < criterion && evidence.2 < criterion){
-    evidence.1 <- evidence.1 + repx(1, rate.1)
-    evidence.2 <- evidence.2 + repx(1, rate.2)
+    evidence.1 <- evidence.1 + rexp(1, rate.1)
+    evidence.2 <- evidence.2 + rexp(1, rate.2)
     time <- time + 1
   }
   if(evidence.1 > evidence.2){
-    return(TRUE, time)
+    return(c(TRUE, time))
   } else{
-    return(FALSE, time)
+    return(c(FALSE, time))
   }
 }
-
 
 
 # test the model ####

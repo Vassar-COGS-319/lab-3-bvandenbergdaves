@@ -25,7 +25,7 @@
 # Describe briefly how you might make this evaluation.
 
 
-random.walk.model <- function(samples, drift=0, sdrw=0.3, criterion=3){
+random.walk.model <- function(samples, drift=0.0115, sdrw=0.3, criterion=5.58){
   
   
   data <- replicate(samples, sim.1(drift, sdrw, criterion))
@@ -48,16 +48,13 @@ sim.1 <- function(drift, sdrw, criterion){
     evidence <- evidence + rnorm(1, drift, sdrw)
     time <- time + 1
   }
-  return(c(evidence >= criterion, time))
+  return(c((evidence >= criterion), time))
 }
 
 
-r.walk.test <- random.walk.model(10000)
-acc.test <- accumulator.model(10000)
 
 
-
-accumulator.model <- function(samples, rate.1=40, rate.2=40, criterion=3){
+accumulator.model <- function(samples, rate.1=101, rate.2=109, criterion=3){
   
   data <- replicate(samples, sim.2(rate.1, rate.2, criterion))
   
@@ -78,14 +75,14 @@ sim.2 <- function(rate.1, rate.2, criterion){
   evidence.2 <- 0
   time <- 0
   while (evidence.1 < criterion && evidence.2 < criterion){
-    evidence.1 <- evidence.1 + repx(1, rate.1)
-    evidence.2 <- evidence.2 + repx(1, rate.2)
+    evidence.1 <- evidence.1 + rexp(1, rate.1)
+    evidence.2 <- evidence.2 + rexp(1, rate.2)
     time <- time + 1
   }
   if(evidence.1 > evidence.2){
-    return(TRUE, time)
+    return(c(TRUE, time))
   } else{
-    return(FALSE, time)
+    return(c(FALSE, time))
   }
 }
 
@@ -95,9 +92,103 @@ r.walk.test <- random.walk.model(10000)
 acc.test <- accumulator.model(10000)
 
 accuracy <- function(x){
-  filter(x, TRUE)/length
+  length <- length(x$correct)
+  acc <- 0
+  for (i in 1:length) {
+    if(x$correct[i]){
+      acc <- acc + 1
+    }
+  }
+  acc/length
 }
 
-accuracy(r.walk.test[1])
+mean.correct.time <- function(x){
+  length <- length(x$correct)
+  acc <- 0
+  for (i in 1:length) {
+    if(x$correct[i]){
+      acc <- acc + x$rt[i]
+    }
+  }
+  acc/length
+}
+
+mean.incorrect.time <- function(x){
+  length <- length(x$correct)
+  acc <- 0
+  for (i in 1:length) {
+    if(!(x$correct[i])){
+      acc <- acc + x$rt[i]
+    }
+  }
+  acc/length
+}
 
 
+
+r.walk.correct.time <- array()
+end.length <- 0
+for (i in 1:length(r.walk.test$rt)) {
+  if(r.walk.test$correct[i]){
+    end.length <- end.length + 1
+    r.walk.correct.time[end.length] <- r.walk.test$rt[i]
+  }
+}
+
+r.walk.incorrect.time <- array()
+end.length <- 0
+for (i in 1:length(r.walk.test$rt)) {
+  if(!(r.walk.test$correct[i])){
+    end.length <- end.length + 1
+    r.walk.incorrect.time[end.length] <- r.walk.test$rt[i]
+  }
+}
+
+
+
+acc.correct.time <- array()
+end.length <- 0
+for (i in 1:length(acc.test$rt)) {
+  if(acc.test$correct[i]){
+    end.length <- end.length + 1
+    acc.correct.time[end.length] <- acc.test$rt[i]
+  }
+}
+
+acc.incorrect.time <- array()
+end.length <- 0
+for (i in 1:length(acc.test$rt)) {
+  if(!(acc.test$correct[i])){
+    end.length <- end.length + 1
+    acc.incorrect.time[end.length] <- acc.test$rt[i]
+  }
+}
+
+accuracy(r.walk.test)
+mean.correct.time(r.walk.test)
+mean.incorrect.time(r.walk.test)
+
+accuracy(acc.test)
+mean.correct.time(acc.test)
+mean.incorrect.time(acc.test)
+
+
+hist(r.walk.correct.time)
+hist(r.walk.incorrect.time)
+hist(acc.correct.time)
+hist(acc.incorrect.time)
+
+# These results are both pretty far from the experimental data. It seems that both models
+# predict that when accuracy is high the mean correct time will be much higher than the
+# mean incorrect time. This is probably because both models rely on a form of drift rate
+# to determine the accuracy of the process.When the drift rate strongly favors one
+# result, the likelihood that that will be the chosen result increases as a function of
+# time. That means the less favored result is only likely to occurr in the early stages
+# when there is minimal evidence. As time passes and evidence increases, the law of
+# averages takes over, and the likelihood of getting the less favored outcome drops.
+
+# The data from the histograms show that the accumulator model give runtimes that fall
+# into a normal distribution while the random walk model gives runtimes that are heavily
+# skewed towards short runtimes. If the experimental runtime data falls in a normal
+# distribution then the accumulator model describes it better. If it is instead skewed
+# towards shorter runtimes, then the random walk model would be better.
