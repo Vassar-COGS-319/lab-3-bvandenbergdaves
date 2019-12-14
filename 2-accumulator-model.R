@@ -68,3 +68,8 @@ incorrect.data <- initial.test %>% filter(correct==FALSE)
 
 hist(correct.data$rt)
 hist(incorrect.data$rt)
+
+
+# CORRECTIONS
+
+# My solution works. No revisions needed.

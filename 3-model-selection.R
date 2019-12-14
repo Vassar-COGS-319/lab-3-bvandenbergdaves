@@ -88,8 +88,8 @@ sim.2 <- function(rate.1, rate.2, criterion){
 
 
 
-r.walk.test <- random.walk.model(10000)
-acc.test <- accumulator.model(10000)
+r.walk.test <- random.walk.model(1000)
+acc.test <- accumulator.model(1000)
 
 accuracy <- function(x){
   length <- length(x$correct)
@@ -192,3 +192,8 @@ hist(acc.incorrect.time)
 # skewed towards short runtimes. If the experimental runtime data falls in a normal
 # distribution then the accumulator model describes it better. If it is instead skewed
 # towards shorter runtimes, then the random walk model would be better.
+
+
+# CORRECTIONS
+
+# My solution works. No revisions needed.
